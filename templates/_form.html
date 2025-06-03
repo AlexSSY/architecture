@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <form method="post">
+    {% for col in model.columns %}
+      {% if not col.primary_key %}
+        <div>
+          <label for="{{ col.name }}">{{ col.name.replace('_', ' ').capitalize() }}</label>
+          <input 
+            type="{% if 'INTEGER' in col.type.upper() %}number{% elif 'BOOLEAN' in col.type.upper() %}checkbox{% elif 'DATE' in col.type.upper() %}date{% else %}text{% endif %}" 
+            id="{{ col.name }}" 
+            name="{{ col.name }}"
+            {% if not col.nullable %} required {% endif %}
+            {% if col.default %} value="{{ col.default }}" {% endif %}
+          >
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Optional: render relationships (as select if MANYTOONE) -->
+    {% for rel in model.relationships %}
+      {% if rel.direction == 'MANYTOONE' %}
+        <div>
+          <label for="{{ rel.name }}">{{ rel.name.replace('_', ' ').capitalize() }}</label>
+          <select name="{{ rel.name }}_id" id="{{ rel.name }}">
+            {% for choice in rel.choices %}
+              <option value="{{ choice.id }}">{{ choice.label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <button type="submit">Submit</button>
+  </form>
+
+</body>
+</html>
