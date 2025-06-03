@@ -9,6 +9,16 @@ from fastapi.templating import Jinja2Templates
 templating = Jinja2Templates('templates')
 
 
+async def render_template_handler(data):
+    template_path = data['path']
+    context = data['context']
+    template = templating.get_template(template_path)
+    return template.render(context)
+
+
+event_bus.respond_to('render_template', render_template_handler)
+
+
 WORKERS = [
     'models_storage',
     'logger_worker',
@@ -46,6 +56,12 @@ async def index(request: Request):
     return templating.TemplateResponse(request, 'index.html', {'models': models})
 
 
+from forms import do
+@app.get('/test')
+async def test(request: Request):
+    return templating.TemplateResponse(request, 'test.html', {'tested': await do()})
+
+
 @app.get('/{model}')
 async def model(request: Request, model):
     model_meta = await event_bus.request('describe_model', {'model_name': model})
@@ -57,6 +73,8 @@ async def create(request: Request, model):
     form_data = await request.form()
     await event_bus.request('model_save', data={'model': model, 'data': [form_data]})
     return RedirectResponse('/', status_code=303)
+
+
 
 
 # from pprint import pprint

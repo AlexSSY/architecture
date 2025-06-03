@@ -1,0 +1,6 @@
+{% import 'macros.html' as ui %}
+
+<div class="mb-3">
+    <label {{ ui.render_attrs(label.html_attributes) }}>{{ label.value }}</label>
+    <input {{ ui.render_attrs(input.html_attributes) }}>
+</div>

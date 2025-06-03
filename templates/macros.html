@@ -1,0 +1,10 @@
+{% macro render_attrs(attrs) -%}
+    {%- for key, value in attrs.items() %}
+        {%- if value is none %}
+            {{ key }}
+        {%- else %}
+            {{ key }}="{{ value }}"
+        {%- endif %}
+        {%- if not loop.last %} {% endif %}
+    {%- endfor %}
+{%- endmacro %}
