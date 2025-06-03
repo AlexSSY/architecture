@@ -1,0 +1,11 @@
+{% import 'macros.html' as ui %}
+
+<form {{ ui.render_attrs(form.html_attributes) }} action="{{ form.action }}" method="{{ form.method }}">
+  {% for field_html in fields_html %}
+  <div class="mb-3">
+    {{ field_html['label'] | safe }}
+    {{ field_html['input'] | safe }}
+  </div>
+  {% endfor %}
+  <input type="submit" value="Submit" class="btn btn-primary">
+</form>

@@ -31,5 +31,37 @@ class Plant(Base):
         return self.name
 
 
+class ModelAdmin:
+    list_display = '__all__'
+    fields = '__all__'
+    readonly_fields = ()
+    model = None
+
+
+class FlowerAdmin(ModelAdmin):
+    model = Flower
+
+
+_model_admin_registry = {'FlowerAdmin': FlowerAdmin}
+
+
+async def model_admin(data):
+    name = data['name']
+    return _model_admin_registry[name]
+
+
+import event
+event.event_bus.respond_to('model_admin', model_admin)
+
+
+async def model_admin_meta(data):
+    model_admin_name = data['name']
+    model_admin_class = await event.event_bus.request('model_admin', {'name': model_admin_name})
+    model_admin_instance = model_admin_class()
+
+
+event.event_bus.respond_to('model_admin_meta', model_admin_meta)
+
+
 from db import engine
 Base.metadata.create_all(engine)

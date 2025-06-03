@@ -1,10 +1,21 @@
-{% macro render_attrs(attrs) -%}
-    {%- for key, value in attrs.items() %}
+{% macro render_attrs(attrs, extra={}) -%}
+    {%- set merged = attrs.copy() %}
+    {%- for key, value in extra.items() %}
+        {%- if key == 'class' %}
+            {#- Мержим классы: старый + новый -#}
+            {%- set old_class = merged.get('class', '') %}
+            {%- set new_class = (old_class ~ ' ' ~ value).strip() %}
+            {%- set _ = merged.update({'class': new_class}) %}
+        {%- else %}
+            {%- set _ = merged.update({key: value}) %}
+        {%- endif %}
+    {%- endfor %}
+    {#- Рендерим финальные атрибуты -#}
+    {%- for key, value in merged.items() %}
         {%- if value is none %}
             {{ key }}
         {%- else %}
             {{ key }}="{{ value }}"
         {%- endif %}
-        {%- if not loop.last %} {% endif %}
     {%- endfor %}
 {%- endmacro %}

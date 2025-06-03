@@ -23,6 +23,8 @@ WORKERS = [
     'models_storage',
     'logger_worker',
     'model_metadata_worker',
+    'forms',
+    'models',
 ]
 
 
@@ -56,10 +58,24 @@ async def index(request: Request):
     return templating.TemplateResponse(request, 'index.html', {'models': models})
 
 
-from forms import do
 @app.get('/test')
 async def test(request: Request):
-    return templating.TemplateResponse(request, 'test.html', {'tested': await do()})
+    form_html = await event_bus.request('form_html', data={
+        'name': 'Form',
+        'method': 'post',
+        'action': '/test'
+    })
+    return templating.TemplateResponse(request, 'test.html', {'form_html': form_html})
+
+
+@app.post('/test')
+async def post_test(request: Request):
+    return await request.form()
+
+
+@app.get('/Flower')
+async def flower(request: Request):
+    return templating.TemplateResponse(request, 'flower.html', {})
 
 
 @app.get('/{model}')

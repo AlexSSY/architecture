@@ -61,6 +61,7 @@ class TextField(FormField):
             placeholder=None,
             required=False,
             template='form/text_input.html',
+            label_template='form/label.html',
         ):
         self.name = name
         self.label = label if label else name
@@ -71,6 +72,7 @@ class TextField(FormField):
         self.input_extra = input_extra
         self.label_extra = label_extra
         self.template = template
+        self.label_template = label_template
 
     def input_html_attributes(self):
         html_attributes = {
@@ -120,38 +122,79 @@ class TextField(FormField):
             'input': self.input_context(),
             'label': self.label_context(),
         }
-    
+
 
 class Form:
-    first_name = TextField('first_name')
-    last_name = TextField('last_name')
+    class Meta:
+        pass
 
-    def context(self):
-        return {
-            'action': 'post',
-            'fields': list([f.context() for f in self.__class__.__dict__.values() if issubclass(type(f), FormField)]),
+    def fields(self):
+       return list([f for f in self.__class__.__dict__.values() if issubclass(type(f), FormField)])
+
+
+class FirstLastForm(Form):
+    first_name = TextField('first_name', label='First Name', label_extra={'style': 'font-weight: bold;'})
+    last_name = TextField('last_name', label='Last Name')
+
+    class Meta:
+        template = 'form/form.html'
+        extra_html_attributes = {
+            'class': 'm-auto w-50',
         }
 
 
-# import main
-from markupsafe import Markup
-async def do():
-    text_field = TextField(
-        'name', 
-        input_extra={'class': 'form-control'},
-        label_extra={'class': 'form-label'}
-    )
-    text_field_context = text_field.context()
-    pprint(text_field_context)
-    print('')
-    print('')
-    print('')
-    print('')
-    rendered_text_field = await event_bus.request(
-        'render_template',
-        {'path': text_field.template, 'context': text_field_context}
-    )
-    return Markup(rendered_text_field)
+_forms = {
+    'Form': FirstLastForm,
+}
 
-pprint(Form().context())
-# asyncio.run(do())
+
+async def form_handler(data):
+    name = data['name']
+    method = data['method']
+    action = data['action']
+
+    form_class = _forms[name]
+
+    form = form_class()
+
+    # render form fields
+    fields_html = []
+
+    fields_context = form.fields()
+    for form_field in fields_context:
+        form_field_context = form_field.context()
+        input_html = await event_bus.request(
+                'render_template',
+                {'path': form_field.template, 'context': form_field_context['input']}
+            )
+        label_html = await event_bus.request(
+                'render_template',
+                {'path': form_field.label_template, 'context': form_field_context['label']}
+            )
+        fields_html.append({
+            'label': label_html,
+            'input': input_html,
+        })
+
+    form_context = {
+        'action': action,
+        'method': method,
+    }
+
+    if hasattr(form.Meta, 'extra_html_attributes'):
+        form_context['html_attributes'] = form.Meta.extra_html_attributes
+
+    context = {
+        'form': form_context,
+        'fields_html': fields_html,
+    }
+
+    rendered_form = await event_bus.request(
+        'render_template',
+        {'path': form.Meta.template, 'context': context}
+    )
+
+    return rendered_form
+
+
+event_bus.respond_to('form_html', form_handler)

@@ -1,0 +1,6 @@
+{% import 'macros.html' as ui %}
+
+{% set label_extra = {'class': 'form-label'} %}
+<label {{ ui.render_attrs(html_attributes, label_extra) }}>
+    {{ value }}
+</label>
