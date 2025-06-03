@@ -8,7 +8,7 @@ class Flower(Base):
     __tablename__ = 'flowers'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(String(length=255), unique=True)
+    name = Column(String(length=255), unique=True, nullable=False)
     plant_id = Column(ForeignKey('plants.id'))
 
     plant = relationship('Plant', back_populates='flowers')
@@ -21,7 +21,7 @@ class Plant(Base):
     __tablename__ = 'plants'
 
     id = Column(Integer, autoincrement=True, primary_key=True)
-    name = Column(String(length=255), unique=True)
+    name = Column(String(length=255), unique=True, nullable=False)
     x_cord = Column(Double)
     y_cord = Column(Double)
 
@@ -29,6 +29,7 @@ class Plant(Base):
 
     def __repr__(self):
         return self.name
+
 
 from db import engine
 Base.metadata.create_all(engine)
