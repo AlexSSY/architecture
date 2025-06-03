@@ -16,23 +16,28 @@ WORKERS = [
 ]
 
 
-print('')
-print('---IMPORT WORKERS---')
-print('')
-for worker in WORKERS:
-    try:
-        import_module(worker)
-        print(f'\tWorker: {worker} imported')
-    except:
-        _msg = f'\tWorker: {worker} import error!'
-        event_bus.request('log', _msg)
-        print(_msg)
-print('')
-print('---END IMPORT WORKERS---')
-print('')
+async def load_workers():
+    print('')
+    print('---IMPORT WORKERS---')
+    print('')
+    for worker in WORKERS:
+        try:
+            import_module(worker)
+            print(f'\tWorker: {worker} imported')
+        except Exception as e:
+            _msg = f'\tWorker: {worker} import error! {e}'
+            print(_msg)
+    print('')
+    print('---END IMPORT WORKERS---')
+    print('')
 
 
 app = FastAPI()
+
+
+@app.on_event('startup')
+async def startup_event():
+    await load_workers()
 
 
 @app.get('/')
@@ -51,7 +56,7 @@ async def model(request: Request, model):
 async def create(request: Request, model):
     form_data = await request.form()
     await event_bus.request('model_save', data={'model': model, 'data': [form_data]})
-    return RedirectResponse('/', status_code=304)
+    return RedirectResponse('/', status_code=303)
 
 
 # from pprint import pprint

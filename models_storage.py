@@ -17,7 +17,7 @@ async def model_records(data):
     offset = data.get('offset')
     limit = data.get('limit')
 
-    sa_model = await event_bus.request('get_sa_,model', {'model_name': model})
+    sa_model = await event_bus.request('get_sa_model', {'model_name': model})
     if not sa_model:
         return []
     
@@ -32,7 +32,7 @@ async def model_save(data):
     model = data['model']
     data = data['data']
 
-    sa_model = await event_bus.request('get_sa_,model', {'model_name': model})
+    sa_model = await event_bus.request('get_sa_model', {'model_name': model})
     if not sa_model:
         return []
     
@@ -57,7 +57,7 @@ async def model_update(data):
     pk = data['pk']
     data_ = data['data']
 
-    sa_model = await event_bus.request('get_sa_,model', {'model_name': model})
+    sa_model = await event_bus.request('get_sa_model', {'model_name': model})
     if not sa_model:
         return []
 
