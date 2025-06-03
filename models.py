@@ -59,6 +59,8 @@ async def model_admin_meta(data):
     model_admin_class = await event.event_bus.request('model_admin', {'name': model_admin_name})
     model_admin_instance = model_admin_class()
 
+    
+
 
 event.event_bus.respond_to('model_admin_meta', model_admin_meta)
 
