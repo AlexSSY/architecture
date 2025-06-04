@@ -23,28 +23,6 @@ class FlowerAdmin:
     model = Flower
 
 
-# flower_schema = FlowerSchema()
-# session = next(get_session())
-# pprint(flower_schema.validate({'name': 'Pink', 'plant_id': 1}, session=session))
-
-# from model_metadata_worker import describe_model
-
-# async def main():
-#     pprint( await describe_model(Flower))
-
-# asyncio.run(main())
-
-
-{
-    'name': '',
-    'type': '',
-    'value': '',
-    'choices': [],
-    'value': '',
-    'errors': [],
-}
-
-
 class FormField:
     pass
 
