@@ -1,6 +1,5 @@
 from importlib import import_module
-import asyncio
-from event import event_bus
+import event
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -9,14 +8,10 @@ from fastapi.templating import Jinja2Templates
 templating = Jinja2Templates('templates')
 
 
-async def render_template_handler(data):
-    template_path = data['path']
-    context = data['context']
-    template = templating.get_template(template_path)
+@event.respond_to('render_template')
+async def render_template_handler(path, context):
+    template = templating.get_template(path)
     return template.render(context)
-
-
-event_bus.respond_to('render_template', render_template_handler)
 
 
 WORKERS = [
@@ -60,11 +55,7 @@ async def index(request: Request):
 
 @app.get('/test')
 async def test(request: Request):
-    form_html = await event_bus.request('form_html', data={
-        'name': 'Form',
-        'method': 'post',
-        'action': '/test'
-    })
+    form_html = await event.request('form_html', name='Form', method='post', action='/test')
     return templating.TemplateResponse(request, 'test.html', {'form_html': form_html})
 
 
@@ -80,14 +71,14 @@ async def flower(request: Request):
 
 @app.get('/{model}')
 async def model(request: Request, model):
-    model_meta = await event_bus.request('describe_model', {'model_name': model})
+    model_meta = await event.request('describe_model', model_name=model)
     return templating.TemplateResponse(request, '_form.html', {'model': model_meta})
 
 
 @app.post('/{model}')
 async def create(request: Request, model):
     form_data = await request.form()
-    await event_bus.request('model_save', data={'model': model, 'data': [form_data]})
+    await event.request('model_save', model=model, data=[form_data])
     return RedirectResponse('/', status_code=303)
 
 

@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from event import event_bus
+import event
 
 
 engine = create_engine('sqlite:///./database.sqlite')
@@ -16,8 +16,6 @@ def get_session():
         session.close()
 
 
-async def _get_session(data):
+@event.respond_to('get_session')
+async def _get_session():
     return next(get_session())
-
-
-event_bus.respond_to('get_session', _get_session)

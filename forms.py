@@ -3,7 +3,7 @@ from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from pprint import pprint
 from models import Flower
 from db import get_session
-from event import event_bus
+import event
 
 
 class FlowerSchema(SQLAlchemySchema):
@@ -126,11 +126,8 @@ _forms = {
 }
 
 
-async def form_handler(data):
-    name = data['name']
-    method = data['method']
-    action = data['action']
-
+@event.respond_to('form_html')
+async def form_handler(name, method, action):
     form_class = _forms[name]
 
     form = form_class()
@@ -141,11 +138,11 @@ async def form_handler(data):
     fields_context = form.fields()
     for form_field in fields_context:
         form_field_context = form_field.context()
-        input_html = await event_bus.request(
+        input_html = await event.request(
                 'render_template',
                 {'path': form_field.template, 'context': form_field_context['input']}
             )
-        label_html = await event_bus.request(
+        label_html = await event.request(
                 'render_template',
                 {'path': form_field.label_template, 'context': form_field_context['label']}
             )
@@ -167,12 +164,9 @@ async def form_handler(data):
         'fields_html': fields_html,
     }
 
-    rendered_form = await event_bus.request(
+    rendered_form = await event.request(
         'render_template',
         {'path': form.Meta.template, 'context': context}
     )
 
     return rendered_form
-
-
-event_bus.respond_to('form_html', form_handler)

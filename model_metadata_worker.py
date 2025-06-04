@@ -1,6 +1,6 @@
 from sqlalchemy.inspection import inspect
 from sqlalchemy.sql.schema import UniqueConstraint, Index
-from event import event_bus
+import event
 
 
 from sqlalchemy.inspection import inspect
@@ -39,7 +39,7 @@ async def describe_model(model):
             # Подгружаем записи из связанной таблицы
             target_model = rel.mapper.class_
             try:
-                session = await event_bus.request('get_session', {})
+                session = await event.request('get_session')
                 choices = session.query(target_model).all()
                 data['choices'] = [
                     {'id': getattr(obj, 'id'), 'label': str(obj)} for obj in choices
@@ -71,13 +71,9 @@ async def describe_model(model):
     }
 
 
-
-async def worker(data):
-    model_name = data['model_name']
-    sa_model = await event_bus.request('get_sa_model', {'model_name': model_name})
+@event.respond_to('describe_model')
+async def worker(model_name):
+    sa_model = await event.request('get_sa_model', {'model_name': model_name})
     if sa_model:
         return await describe_model(sa_model)
     return {}
-
-
-event_bus.respond_to('describe_model', worker)

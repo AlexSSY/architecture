@@ -7,9 +7,15 @@ _responders = {}
 _strict = True
 
 
-def subscribe(event_name, handler):
+def register_subscriber(event_name, handler):
     _subscribers[event_name].append(handler)
 
+
+def subscribe(event_name):
+    def wrapper(fn):
+        register_subscriber(event_name, fn)
+        return fn
+    return wrapper
 
 
 def register_responder(event_name, handler):
