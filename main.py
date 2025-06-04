@@ -33,6 +33,12 @@ async def index(request: Request):
     return (await event.request('templating.get')).TemplateResponse(request, 'index.html', {'models': models})
 
 
+@app.get('/partials/{template_name}')
+async def render_template(request: Request):
+    templating = await event.request('templating.get')
+    return templating.Render
+
+
 @app.get('/test')
 async def test(request: Request):
     form_html = await event.request('form_html', name='Form', method='post', action='/test')
