@@ -73,7 +73,7 @@ async def describe_model(model):
 
 @event.respond_to('describe_model')
 async def worker(model_name):
-    sa_model = await event.request('get_sa_model', {'model_name': model_name})
+    sa_model = await event.request('get_sa_model', model_name=model_name)
     if sa_model:
         return await describe_model(sa_model)
     return {}

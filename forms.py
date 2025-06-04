@@ -1,4 +1,3 @@
-import asyncio
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from pprint import pprint
 from models import Flower
@@ -138,14 +137,8 @@ async def form_handler(name, method, action):
     fields_context = form.fields()
     for form_field in fields_context:
         form_field_context = form_field.context()
-        input_html = await event.request(
-                'render_template',
-                {'path': form_field.template, 'context': form_field_context['input']}
-            )
-        label_html = await event.request(
-                'render_template',
-                {'path': form_field.label_template, 'context': form_field_context['label']}
-            )
+        input_html = await event.request('templating.render', form_field.template, form_field_context['input'])
+        label_html = await event.request('templating.render', form_field.label_template, form_field_context['label'])
         fields_html.append({
             'label': label_html,
             'input': input_html,

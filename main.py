@@ -2,77 +2,58 @@ from importlib import import_module
 import event
 from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
-
-
-templating = Jinja2Templates('templates')
-
-
-@event.respond_to('render_template')
-async def render_template_handler(path, context):
-    template = templating.get_template(path)
-    return template.render(context)
-
-
-WORKERS = [
-    'models_storage',
-    'logger_worker',
-    'model_metadata_worker',
-    'forms',
-    'models',
-]
-
-
-async def load_workers():
-    print('')
-    print('---IMPORT WORKERS---')
-    print('')
-    for worker in WORKERS:
-        try:
-            import_module(worker)
-            print(f'\tWorker: {worker} imported')
-        except Exception as e:
-            _msg = f'\tWorker: {worker} import error! {e}'
-            print(_msg)
-    print('')
-    print('---END IMPORT WORKERS---')
-    print('')
+from fastapi.staticfiles import StaticFiles
+from loader import Loader
 
 
 app = FastAPI()
 
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+
 @app.on_event('startup')
 async def startup_event():
-    await load_workers()
+    config = {
+        'services': [
+            'models_storage',
+            'logger_worker',
+            'model_metadata_worker',
+            'forms',
+            'models',
+            'services.templating',
+        ]
+    }
+    await Loader.load(config)
 
 
 @app.get('/')
 async def index(request: Request):
     models = ['Flower', 'Plant']
-    return templating.TemplateResponse(request, 'index.html', {'models': models})
+    return (await event.request('templating.get')).TemplateResponse(request, 'index.html', {'models': models})
 
 
 @app.get('/test')
 async def test(request: Request):
     form_html = await event.request('form_html', name='Form', method='post', action='/test')
-    return templating.TemplateResponse(request, 'test.html', {'form_html': form_html})
+    return (await event.request('templating.get')).TemplateResponse(request, 'test.html', {'form_html': form_html})
 
 
 @app.post('/test')
-async def post_test(request: Request):
+async def post_test(request: Request):  
     return await request.form()
 
 
 @app.get('/Flower')
 async def flower(request: Request):
+    templating = await event.request('templating.get')
     return templating.TemplateResponse(request, 'flower.html', {})
 
 
 @app.get('/{model}')
 async def model(request: Request, model):
     model_meta = await event.request('describe_model', model_name=model)
-    return templating.TemplateResponse(request, '_form.html', {'model': model_meta})
+    return (await event.request('templating.get')).TemplateResponse(request, '_form.html', {'model': model_meta})
 
 
 @app.post('/{model}')
@@ -80,19 +61,3 @@ async def create(request: Request, model):
     form_data = await request.form()
     await event.request('model_save', model=model, data=[form_data])
     return RedirectResponse('/', status_code=303)
-
-
-
-
-# from pprint import pprint
-
-
-# def home():
-    # parameters = {'model': "Flower", 'data':[{'name': 'Budiak'}]}
-    # await event_bus.request('model_save', data=parameters)
-    # parameters = {'model': 'Flower', 'pk': 2, 'data': {'name': 'Bezsmertnik', 'plant': None}}
-    # print(await event_bus.request('model_update', parameters))
-    # request_data = { 'model': 'Flower', 'offset': 0, 'limit': 5 }
-    # records = await event_bus.request('model_records', data=request_data)
-    # print(records)
-    # pprint(await event_bus.request('describe_model', {'model_name': 'Flower'}))

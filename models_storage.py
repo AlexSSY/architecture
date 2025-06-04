@@ -11,7 +11,7 @@ async def get_sa_model(model_name):
 
 @event.respond_to('model_records')
 async def model_records(model, offset, limit):
-    sa_model = await event.request('get_sa_model', {'model_name': model})
+    sa_model = await event.request('get_sa_model', model_name=model)
     if not sa_model:
         return []
     
@@ -21,7 +21,7 @@ async def model_records(model, offset, limit):
 
 @event.respond_to('model_save')
 async def model_save(model, data):
-    sa_model = await event.request('get_sa_model', {'model_name': model})
+    sa_model = await event.request('get_sa_model', model_name=model)
     if not sa_model:
         return []
     
@@ -40,7 +40,7 @@ async def model_save(model, data):
 
 @event.respond_to('model_update')
 async def model_update(model, pk, data):
-    sa_model = await event.request('get_sa_model', {'model_name': model})
+    sa_model = await event.request('get_sa_model', model_name=model)
     if not sa_model:
         return []
 
