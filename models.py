@@ -1,5 +1,6 @@
 from sqlalchemy import Column, String, Integer, Double, ForeignKey
 from sqlalchemy.orm import relationship
+from models_storage import register_model_admin
 
 from db import Base
 
@@ -42,6 +43,10 @@ class FlowerAdmin(ModelAdmin):
     model = Flower
 
 
+class PlantAdmin(ModelAdmin):
+    model = Plant
+
+
 _model_admin_registry = {'FlowerAdmin': FlowerAdmin}
 
 
@@ -58,6 +63,9 @@ async def model_admin_meta(data):
     model_admin_class = await event.request('model_admin', name=model_admin_name)
     model_admin_instance = model_admin_class()
 
+
+register_model_admin(FlowerAdmin)
+register_model_admin(PlantAdmin)
 
 from db import engine
 Base.metadata.create_all(engine)

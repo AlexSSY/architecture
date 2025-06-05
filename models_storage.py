@@ -1,16 +1,35 @@
-import models
 import event
 from db import get_session
 
 
+_registered_models = {}
+
+
 @event.respond_to('get_sa_model')
 async def get_sa_model(model_name):
-    looking_model = models.__dict__.get(model_name)
-    return looking_model
+    looking_model = _registered_models.get(model_name)
+    looking_model_instance = looking_model()
+    return looking_model_instance.__class__.model
+
+
+# @event.respond_to('storage.models.register')
+def register_model_admin(model_admin_cls):
+    name = model_admin_cls.__name__.replace('Admin', '')
+    _registered_models[name] = model_admin_cls
+
+
+@event.respond_to('storage.models')
+async def get_all_models():
+    return _registered_models
+
+
+@event.respond_to('storage.model')
+async def get_one_model(model_name):
+    return _registered_models.get(model_name)
 
 
 @event.respond_to('model_records')
-async def model_records(model, offset, limit):
+async def model_records(model, offset=0, limit=8):
     sa_model = await event.request('get_sa_model', model_name=model)
     if not sa_model:
         return []

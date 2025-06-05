@@ -1,15 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-</head>
-<body>
-  <ul>
-    {% for model in models %}
-    <li><a href="http://127.0.0.1:8000/{{ model }}">{{ model }}</a></li>
-    {% endfor %}
-  </ul>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block body %}
+  {% include 'index/_page_header.html' %}
+  
+  <div class="page-body">
+    <div class="container-xl">
+      <div class="row row-deck-row-cards">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">{{ model_name }}</h3>
+            </div>
+            {% include 'index/_table_subheader.html' %}
+            {% include 'index/_table_records.html' %}
+            {% include 'index/_table_footer.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
