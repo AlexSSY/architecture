@@ -45,6 +45,27 @@ async def render_template(request: Request):
     return templating.TemplateResponse(request, '_models.html', {'models': registered_models})
 
 
+@app.get('/x/records/{model_name}/{offset}/{limit}')
+async def render_records(request: Request, model_name: str, offset: int, limit: int):
+    templating = await event.request('templating.get')
+    model_meta = await event.request('describe_model', model_name=model_name)
+    records = await event.request('model_records', model_name, offset, limit)
+
+    records_context = []
+    for r in records:
+        columns_data = []
+        for c in model_meta['columns']:
+            columns_data.append(getattr(r, c['name']))
+        records_context.append(columns_data)
+    
+    context = {
+        'model_columns': list([(c['name'], idx) for idx, c in enumerate(model_meta['columns'])]),
+        'records': records_context,
+    }
+    
+    return templating.TemplateResponse(request, 'index/_table_records.html', context)
+
+
 # @app.get('/test')
 # async def test(request: Request): 
 #     form_html = await event.request('form_html', name='Form', method='post', action='/test')
@@ -59,23 +80,27 @@ async def render_template(request: Request):
 @app.get('/{model_name}')
 async def index(request: Request, model_name):
     # model_admin = await event.request('storage.model', model_name=model)
-    model_meta = await event.request('describe_model', model_name=model_name)
+    # model_meta = await event.request('describe_model', model_name=model_name)
     templating = await event.request('templating.get')
-    records = await event.request('model_records', model_name)
-    records_context = []
-    for r in records:
-        columns_data = []
-        for c in model_meta['columns']:
-            columns_data.append(getattr(r, c['name']))
-        records_context.append(columns_data)
 
     context = {
         'model_name': model_name,
-        'model_columns': list([(c['name'], idx) for idx, c in enumerate(model_meta['columns'])]),
-        'records': records_context,
     }
 
     return templating.TemplateResponse(request, 'index.html', context)
+
+
+@app.get('/{model_name}/new')
+async def new(request: Request, model_name: str):
+    templating = await event.request('templating.get')
+    form_html = await event.request('form_html', name='Form', method='post', action='/test')
+
+    context = {
+        'model_name': model_name,
+        'form_html': form_html,
+    }
+
+    return templating.TemplateResponse(request, 'new.html', context)
 
 
 @app.post('/{model}')

@@ -157,9 +157,6 @@ async def form_handler(name, method, action):
         'fields_html': fields_html,
     }
 
-    rendered_form = await event.request(
-        'render_template',
-        {'path': form.Meta.template, 'context': context}
-    )
+    rendered_form = await event.request('templating.render', form.Meta.template, context)
 
     return rendered_form

@@ -12,7 +12,11 @@
               <h3 class="card-title">{{ model_name }}</h3>
             </div>
             {% include 'index/_table_subheader.html' %}
-            {% include 'index/_table_records.html' %}
+            <div hx-get="/x/records/{{ model_name }}/0/8" hx-trigger="load" class="table-responsive">
+              <div class="d-flex justify-content-center">
+                <div class="spinner-border"></div>
+              </div>
+            </div>
             {% include 'index/_table_footer.html' %}
           </div>
         </div>
