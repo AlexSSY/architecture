@@ -1,9 +1,10 @@
 from importlib import import_module
 import event
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Query
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from loader import Loader
+import asyncio
 
 
 app = FastAPI()
@@ -45,12 +46,12 @@ async def render_template(request: Request):
     return templating.TemplateResponse(request, '_models.html', {'models': registered_models})
 
 
-@app.get('/x/records/{model_name}/{offset}/{limit}')
-async def render_records(request: Request, model_name: str, offset: int, limit: int):
+@app.get('/x/records/{model_name}')
+async def render_records(request: Request, model_name: str, offset: int = 0, limit: int = 8):
     templating = await event.request('templating.get')
     model_meta = await event.request('describe_model', model_name=model_name)
     records = await event.request('model_records', model_name, offset, limit)
-
+    total = len(records)
     records_context = []
     for r in records:
         columns_data = []
@@ -61,8 +62,12 @@ async def render_records(request: Request, model_name: str, offset: int, limit: 
     context = {
         'model_columns': list([(c['name'], idx) for idx, c in enumerate(model_meta['columns'])]),
         'records': records_context,
+        'total': total,
+        'offset': offset,
+        'limit': limit,
+        'showing': min(limit, total)
     }
-    
+    await asyncio.sleep(1)
     return templating.TemplateResponse(request, 'index/_table_records.html', context)
 
 

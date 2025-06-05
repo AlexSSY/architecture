@@ -3,14 +3,29 @@
     <div class="text-secondary">
       Show
       <div class="mx-2 d-inline-block">
-        <input type="text" class="form-control form-control-sm" value="8" size="3" aria-label="Invoices count">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          name="limit"
+          value="8"
+          size="3"
+          aria-label="Invoices count"
+          hx-get="/x/records/{{ model_name }}"
+          hx-target="#table-records"
+          hx-trigger="keyup[key=='Enter'], load"
+          hx-indicator="#records-indicator"
+        >
       </div>
       entries
     </div>
     <div class="ms-auto text-secondary">
       Search:
       <div class="ms-2 d-inline-block">
-        <input type="text" class="form-control form-control-sm" aria-label="Search invoice">
+        <input
+          type="text"
+          class="form-control form-control-sm"
+          aria-label="Search invoice"
+        >
       </div>
     </div>
   </div>

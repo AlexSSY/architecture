@@ -12,12 +12,15 @@
               <h3 class="card-title">{{ model_name }}</h3>
             </div>
             {% include 'index/_table_subheader.html' %}
-            <div hx-get="/x/records/{{ model_name }}/0/8" hx-trigger="load" class="table-responsive">
-              <div class="d-flex justify-content-center">
-                <div class="spinner-border"></div>
+            <!-- <div id="tableRecords" hx-get="/x/records/{{ model_name }}?offset=0&limit=8" hx-trigger="load"> -->
+            <div class="position-relative">
+              <div id="table-records" style="min-height: 90px;">
+              </div>
+              <div id="records-indicator" class="position-absolute top-0 h-100 w-100 z-3 d-flex justify-content-center align-items-center" style="background-color: rgba(255, 255, 255, 0.5);">
+                <div class="position-relative spinner-border">
+                </div>
               </div>
             </div>
-            {% include 'index/_table_footer.html' %}
           </div>
         </div>
       </div>

@@ -1,44 +1,107 @@
-<table class="table table-selectable card-table table-vcenter text-nowrap datatable">
-  <thead>
-    <tr>
-      <th class="w-1"><input class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices"></th>
-      {% for column, idx in model_columns %}
-      <th {% if idx == 0 %}class="w-1"{% endif %}>
-        {{ column }}
-        {% if idx == 0 %}
-        <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-up -->
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm icon-thick icon-2">
-          <path d="M6 15l6 -6l6 6"></path>
-        </svg>
-        {% endif %}
-      </th>
+<div class="table-responsive">
+  <table class="table table-selectable card-table table-vcenter text-nowrap datatable">
+    <thead>
+      <tr>
+        <th class="w-1">
+          <input id="masterCheckBox" class="form-check-input m-0 align-middle" type="checkbox" aria-label="Select all invoices">
+        </th>
+        {% for column, idx in model_columns %}
+        <th {% if idx == 0 %}class="w-1"{% endif %}>
+          {{ column }}
+          {% if idx == 0 %}
+          <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-up -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-sm icon-thick icon-2">
+            <path d="M6 15l6 -6l6 6"></path>
+          </svg>
+          {% endif %}
+        </th>
+        {% endfor %}
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if records %}
+      {% for record in records %}
+      <tr>
+        <td>
+          <input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select invoice">
+        </td>
+        {% for c in record %}
+        <td>{{ c }}</td>
+        {% endfor %}
+        <td class="text-end">
+          <span class="dropdown">
+            <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown" aria-expanded="false">Actions</button>
+            <div class="dropdown-menu dropdown-menu-end" style="">
+              <a class="dropdown-item" href="#"> Action </a>
+              <a class="dropdown-item" href="#"> Another action </a>
+            </div>
+          </span>
+        </td>
+      </tr>
       {% endfor %}
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% if records %}
-    {% for record in records %}
-    <tr>
-      <td><input class="form-check-input m-0 align-middle table-selectable-check" type="checkbox" aria-label="Select invoice"></td>
-      {% for c in record %}
-      <td>{{ c }}</td>
-      {% endfor %}
-      <td class="text-end">
-        <span class="dropdown">
-          <button class="btn dropdown-toggle align-text-top" data-bs-boundary="viewport" data-bs-toggle="dropdown" aria-expanded="false">Actions</button>
-          <div class="dropdown-menu dropdown-menu-end" style="">
-            <a class="dropdown-item" href="#"> Action </a>
-            <a class="dropdown-item" href="#"> Another action </a>
-          </div>
-        </span>
-      </td>
-    </tr>
-    {% endfor %}
-    {% else %}
-    <tr>
-      <td class="text-center" colspan="{{ (model_columns | length) + 2 }}">No Items</td>
-    </tr>
-    {% endif %}
-  </tbody>
-</table>
+      {% else %}
+      <tr>
+        <td class="text-center" colspan="{{ (model_columns | length) + 2 }}">No Items</td>
+      </tr>
+      {% endif %}
+    </tbody>
+  </table>
+  <script>
+    var masterCheckBox = document.getElementById('masterCheckBox');
+    masterCheckBox.addEventListener('change', function() {
+      var slaveCheckBoxes = document.getElementsByClassName('table-selectable-check');
+      if (this.checked) {
+        Array.from(slaveCheckBoxes).forEach(c => c.checked = true);
+      } else {
+        Array.from(slaveCheckBoxes).forEach(c => c.checked = false);
+      }
+    });
+  </script>
+</div>
+<div class="card-footer">
+  <div class="row g-2 justify-content-center justify-content-sm-between">
+    <div class="col-auto d-flex align-items-center">
+      {% if total > 0 %}
+      <p class="m-0 text-secondary">Showing <strong>1 to {{ showing }}</strong> of <strong>{{ total }} entries</strong></p>
+      {% else %}
+      <p class="m-0 text-secondary">Showing 0</p>
+      {% endif %}
+    </div>
+    <div class="col-auto">
+      <ul class="pagination m-0 ms-auto">
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+            <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-left -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+              <path d="M15 6l-6 6l6 6"></path>
+            </svg>
+          </a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">1</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">2</a>
+        </li>
+        <li class="page-item active">
+          <a class="page-link" href="#">3</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">4</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">5</a>
+        </li>
+        <li class="page-item">
+          <a class="page-link" href="#">
+            <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-right -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+              <path d="M9 6l6 6l-6 6"></path>
+            </svg>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>

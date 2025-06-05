@@ -7,6 +7,22 @@
     <script src="https://unpkg.com/htmx.org@2.0.4"></script>
     <title>Document</title>
     <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
+    <style>
+      #records-indicator {
+        /* opacity:0; */
+        display: none !important;
+      }
+      .htmx-request #records-indicator {
+        /* opacity:1; */
+        display: flex !important;
+        transition: opacity 200ms ease-in;
+      }
+      .htmx-request#records-indicator {
+        /* opacity:1; */
+        display: flex !important;
+        /* transition: opacity 200ms ease-in; */
+      }
+    </style>
 </head>
 <body>
   <div class="page">
