@@ -28,6 +28,16 @@ async def get_one_model(model_name):
     return _registered_models.get(model_name)
 
 
+@event.respond_to('records.count')
+async def records_count(model_name):
+    sa_model = await event.request('get_sa_model', model_name=model_name)
+    if not sa_model:
+        return 0
+    
+    session = next(get_session())
+    return session.query(sa_model).count()
+
+
 @event.respond_to('model_records')
 async def model_records(model, offset=0, limit=8):
     sa_model = await event.request('get_sa_model', model_name=model)

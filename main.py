@@ -51,7 +51,7 @@ async def render_records(request: Request, model_name: str, offset: int = 0, lim
     templating = await event.request('templating.get')
     model_meta = await event.request('describe_model', model_name=model_name)
     records = await event.request('model_records', model_name, offset, limit)
-    total = len(records)
+    total = await event.request('records.count', model_name)
     records_context = []
     for r in records:
         columns_data = []
@@ -60,12 +60,13 @@ async def render_records(request: Request, model_name: str, offset: int = 0, lim
         records_context.append(columns_data)
     
     context = {
+        'model_name': model_name,
         'model_columns': list([(c['name'], idx) for idx, c in enumerate(model_meta['columns'])]),
         'records': records_context,
         'total': total,
         'offset': offset,
         'limit': limit,
-        'showing': min(limit, total)
+        'showing': min(limit, total),
     }
     await asyncio.sleep(1)
     return templating.TemplateResponse(request, 'index/_table_records.html', context)
