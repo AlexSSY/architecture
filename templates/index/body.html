@@ -6,16 +6,16 @@
             <div class="card-header">
               <h3 class="card-title">{{ model_name }}</h3>
             </div>
-            {% include 'index/_table_subheader.html' %}
+            {% include 'index/records/subheader.html' %}
+            
             <!-- <div id="tableRecords" hx-get="/x/records/{{ model_name }}?offset=0&limit=8" hx-trigger="load"> -->
             <div class="position-relative">
-              <div id="table-records" style="min-height: 90px;">
-              </div>
-              <div id="records-indicator" class="position-absolute top-0 h-100 w-100 z-3 d-flex justify-content-center align-items-center" style="background-color: rgba(255, 255, 255, 0.5);">
-                <div class="position-relative spinner-border">
-                </div>
+              <div id="table-records" style="min-height: 90px;"></div>
+              <div id="records-indicator" class="position-absolute top-0 h-100 w-100 z-3 d-flex justify-content-center align-items-center" style="background-color: rgba(255, 255, 255, 0.1);">
+                <div class="position-relative spinner-border"></div>
               </div>
             </div>
+          
           </div>
         </div>
       </div>

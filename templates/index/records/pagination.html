@@ -3,7 +3,7 @@
 {% set window = 2 %}  {# количество страниц до и после текущей #}
 
 <ul class="pagination m-0 ms-auto">
-    <li class="page-item {{ current_page == 0 and 'disabled' or '' }}">
+    <li class="page-item {{ current_page == 0 and 'disabled' or '' }}" style="cursor: pointer;">
         <a 
         class="page-link"
         tabindex="-1"
@@ -20,19 +20,21 @@
     </li>
 
     {% for page_number in range([current_page - window, 0] | max, [current_page + window + 1, total_pages] | min) %}
-        <li class="page-item {{ page_number == current_page and 'active' or '' }}">
+        <li class="page-item {{ page_number == current_page and 'active' or '' }}" style="cursor: pointer;">
         <a 
             class="page-link"
+            {% if current_page != page_number %}
             hx-get="/x/records/{{ model_name }}?offset={{ page_number * limit
             }}&limit={{ limit }}"
             hx-target="#table-records"
             hx-indicator="#records-indicator"
+            {% endif %}
         >{{ page_number + 1 }}</a>
         </li>
     {% endfor %}
 
     {% set next_offset = offset + limit %}
-    <li class="page-item {{ current_page == total_pages - 1 and 'disabled' or '' }}">
+    <li class="page-item {{ current_page == total_pages - 1 and 'disabled' or '' }}" style="cursor: pointer;">
         <a 
             class="page-link" 
             hx-get="/x/records/{{ model_name }}?offset={{ next_offset }}&limit={{ limit }}"

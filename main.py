@@ -48,6 +48,8 @@ async def render_template(request: Request):
 
 @app.get('/x/records/{model_name}')
 async def render_records(request: Request, model_name: str, offset: int = 0, limit: int = 8):
+    offset = max(offset, 0)
+    limit = max(limit, 1)
     templating = await event.request('templating.get')
     model_meta = await event.request('describe_model', model_name=model_name)
     records = await event.request('model_records', model_name, offset, limit)
@@ -69,7 +71,7 @@ async def render_records(request: Request, model_name: str, offset: int = 0, lim
         'showing': min(limit, total),
     }
     await asyncio.sleep(1)
-    return templating.TemplateResponse(request, 'index/_table_records.html', context)
+    return templating.TemplateResponse(request, 'index/records/records.html', context)
 
 
 # @app.get('/test')

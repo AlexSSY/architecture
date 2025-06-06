@@ -1,4 +1,6 @@
 import event
+from sqlalchemy import asc, desc
+
 from db import get_session
 
 
@@ -39,13 +41,16 @@ async def records_count(model_name):
 
 
 @event.respond_to('model_records')
-async def model_records(model, offset=0, limit=8):
+async def model_records(model, offset=0, limit=8, sort_col_name=None, _desc=False):
     sa_model = await event.request('get_sa_model', model_name=model)
     if not sa_model:
         return []
     
+    column_name = 'name'
+    column = getattr(sa_model, column_name)
+    
     session = next(get_session())
-    return session.query(sa_model).limit(limit).offset(offset).all()
+    return session.query(sa_model).order_by(desc(column)).limit(limit).offset(offset).all()
 
 
 @event.respond_to('model_save')
