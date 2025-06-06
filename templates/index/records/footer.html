@@ -1,0 +1,14 @@
+<div class="card-footer">
+  <div class="row g-2 justify-content-center justify-content-sm-between">
+    <div class="col-auto d-flex align-items-center">
+      {% if total > 0 %}
+      <p class="m-0 text-secondary">Showing <strong>{{ offset + 1 }} to {{ offset + limit }}</strong> of <strong>{{ total }} entries</strong></p>
+      {% else %}
+      <p class="m-0 text-secondary">Showing 0</p>
+      {% endif %}
+    </div>
+    <div class="col-auto">
+      {% include 'index/_pagination.html' %}
+    </div>
+  </div>
+</div>

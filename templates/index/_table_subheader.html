@@ -12,7 +12,7 @@
           aria-label="Invoices count"
           hx-get="/x/records/{{ model_name }}"
           hx-target="#table-records"
-          hx-trigger="keyup[key=='Enter'], load"
+          hx-trigger="keyup[key=='Enter'], focusout, load"
           hx-indicator="#records-indicator"
         >
       </div>

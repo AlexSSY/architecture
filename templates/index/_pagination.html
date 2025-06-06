@@ -1,0 +1,48 @@
+{% set current_page = offset // limit %}
+{% set total_pages = (total + limit - 1) // limit %}
+{% set window = 2 %}  {# количество страниц до и после текущей #}
+
+<ul class="pagination m-0 ms-auto">
+    <li class="page-item {{ current_page == 0 and 'disabled' or '' }}">
+        <a 
+        class="page-link"
+        tabindex="-1"
+        aria-disabled="true"
+        hx-get="/x/records/{{ model_name }}?offset={{ [offset - limit, 0] | max }}&limit={{ limit }}"
+        hx-target="#table-records"
+        hx-indicator="#records-indicator"
+        >
+        <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-left -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+            <path d="M15 6l-6 6l6 6"></path>
+        </svg>
+        </a>
+    </li>
+
+    {% for page_number in range([current_page - window, 0] | max, [current_page + window + 1, total_pages] | min) %}
+        <li class="page-item {{ page_number == current_page and 'active' or '' }}">
+        <a 
+            class="page-link"
+            hx-get="/x/records/{{ model_name }}?offset={{ page_number * limit
+            }}&limit={{ limit }}"
+            hx-target="#table-records"
+            hx-indicator="#records-indicator"
+        >{{ page_number + 1 }}</a>
+        </li>
+    {% endfor %}
+
+    {% set next_offset = offset + limit %}
+    <li class="page-item {{ current_page == total_pages - 1 and 'disabled' or '' }}">
+        <a 
+            class="page-link" 
+            hx-get="/x/records/{{ model_name }}?offset={{ next_offset }}&limit={{ limit }}"
+            hx-target="#table-records"
+            hx-indicator="#records-indicator"
+        >
+        <!-- Download SVG icon from http://tabler.io/icons/icon/chevron-right -->
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-1">
+            <path d="M9 6l6 6l-6 6"></path>
+        </svg>
+        </a>
+    </li>
+</ul>
